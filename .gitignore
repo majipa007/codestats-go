@@ -1,0 +1,19 @@
+# ---- Go build artifacts ----
+/codestats
+/codestats.exe
+
+# ---- Test / profiling ----
+*.test
+*.out
+*.prof
+
+# ---- Editor / IDE ----
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ---- OS ----
+.DS_Store
+Thumbs.db
+

@@ -12,3 +12,13 @@ func GetCwd() string {
 	}
 	return cwd
 }
+
+// func NotInSlice(value string, slice []string) bool {
+// 	fmt.Printf("folder: %v\n",value)
+// 	for _, v := range slice {
+// 		if v == value {
+// 			return false
+// 		}
+// 	}
+// 	return true
+// }

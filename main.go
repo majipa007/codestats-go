@@ -19,7 +19,7 @@ func main() {
 	}
 
 	var jsonData map[string][]string
-
+	codeStatsData := make(map[string]helper.FolderData)
 	test := json.Unmarshal(data, &jsonData)
 	if test != nil {
 		panic(test)
@@ -30,7 +30,8 @@ func main() {
 
 	// Step 3: traverse in the current directory only for the certain directories and get the allowed_extensions
 	// Step 4: get the array of the particular dtype
-	var allFiles helper.FolderData
-	helper.Traverser(cwd, ignoreDirectories, allowedxtensions, &allFiles)
-	fmt.Printf("lines: %d\nchars: %d", allFiles.NoOfLines, allFiles.NoOfChars)
+	helper.Traverser(cwd, ignoreDirectories, allowedxtensions, codeStatsData)
+	for i := range codeStatsData {
+		fmt.Printf("extention:%s \nlines: %d\nchars: %d\n", i, codeStatsData[i].NoOfLines, codeStatsData[i].NoOfChars)
+	}
 }

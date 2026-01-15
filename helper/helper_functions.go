@@ -2,6 +2,7 @@
 package helper
 
 import (
+	"bufio"
 	"os"
 )
 
@@ -13,12 +14,21 @@ func GetCwd() string {
 	return cwd
 }
 
-// func NotInSlice(value string, slice []string) bool {
-// 	fmt.Printf("folder: %v\n",value)
-// 	for _, v := range slice {
-// 		if v == value {
-// 			return false
-// 		}
-// 	}
-// 	return true
-// }
+func readFiles(path string) FolderData {
+	f, err := os.Open(path)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close() //nolint:errcheck
+
+	scanner := bufio.NewScanner(f)
+	lines := 0
+	chars := 0
+
+	for scanner.Scan() {
+		lines++
+		chars += len(scanner.Text())
+	}
+
+	return FolderData{lines, chars}
+}

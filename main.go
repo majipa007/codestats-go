@@ -28,10 +28,9 @@ func main() {
 	ignoreDirectories := jsonData["ignore_directories"]
 	allowedxtensions := jsonData["allowed_extensions"]
 
-	// Step 3: traverse in the current directory only for the certain directories
-	var allFiles []string
-	retrivedFiles := helper.Traverser(cwd, ignoreDirectories, allowedxtensions, allFiles)
-	for _, data := range retrivedFiles {
-		fmt.Println(data)
-	}
+	// Step 3: traverse in the current directory only for the certain directories and get the allowed_extensions
+	// Step 4: get the array of the particular dtype
+	var allFiles helper.FolderData
+	helper.Traverser(cwd, ignoreDirectories, allowedxtensions, &allFiles)
+	fmt.Printf("lines: %d\nchars: %d", allFiles.NoOfLines, allFiles.NoOfChars)
 }

@@ -6,16 +6,16 @@ import (
 	"slices"
 )
 
-// type fileData struct {
-// 	fileType  string
-// 	noOfLines int32
-// }
+type FolderData struct {
+	NoOfLines int
+	NoOfChars int
+}
 
 func Traverser(cwd string,
 	ignoreDirectories []string,
 	allowedExtensions []string,
-	allfiles []string,
-) []string {
+	allData *FolderData,
+) {
 	// getting the folder content in an array
 	folderContent, err := os.ReadDir(cwd)
 	if err != nil {
@@ -28,15 +28,18 @@ func Traverser(cwd string,
 		if entry.IsDir() {
 			// trying to ignore thing inside the ignoreDirectories
 			if !slices.Contains(ignoreDirectories, string(entry.Name())) {
-				tempArray := Traverser(cwd+"/"+entry.Name(), ignoreDirectories, allowedExtensions, allfiles)
-				allfiles = append(allfiles, tempArray...)
+				Traverser(filepath.Join(cwd, entry.Name()), ignoreDirectories, allowedExtensions, allData)
+				// allData.NoOfLines += tempData.NoOfLines
+				// allData.NoOfChars += tempData.NoOfChars
 			}
 		} else {
 			fileExtention := filepath.Ext(entry.Name())
 			if slices.Contains(allowedExtensions, fileExtention) {
-				allfiles = append(allfiles, entry.Name())
+				tempFileData := readFiles(filepath.Join(cwd, entry.Name()))
+
+				allData.NoOfLines += tempFileData.NoOfLines
+				allData.NoOfChars += tempFileData.NoOfChars
 			}
 		}
 	}
-	return allfiles
 }

@@ -2,18 +2,24 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
+	"path/filepath"
 
 	"codestats/helper"
+	"codestats/tui"
 )
 
 func main() {
 	// Step 1: Get the current locations
 	cwd := helper.GetCwd()
+	home, err := os.UserHomeDir()
+	if err != nil {
+		panic(err)
+	}
 
 	// Step 2: Get the directories and files to ignore and look for
-	data, err := os.ReadFile("codestats.config.json")
+	configPath := filepath.Join(home, "codestats", "codestats.config.json")
+	data, err := os.ReadFile(configPath)
 	if err != nil {
 		panic(err)
 	}
@@ -31,7 +37,5 @@ func main() {
 	// Step 3: traverse in the current directory only for the certain directories and get the allowed_extensions
 	// Step 4: get the array of the particular dtype
 	helper.Traverser(cwd, ignoreDirectories, allowedxtensions, codeStatsData)
-	for i := range codeStatsData {
-		fmt.Printf("extention:%s \nlines: %d\nchars: %d\n", i, codeStatsData[i].NoOfLines, codeStatsData[i].NoOfChars)
-	}
+	tui.DisplayData(codeStatsData)
 }

@@ -4,6 +4,7 @@ package helper
 import (
 	"bufio"
 	"os"
+	"sync"
 )
 
 func GetCwd() string {
@@ -14,7 +15,8 @@ func GetCwd() string {
 	return cwd
 }
 
-func readFiles(path string) FolderData {
+func readFiles(path string, fileExtension string, ch chan FolderData, wg *sync.WaitGroup) {
+	defer wg.Done()
 	f, err := os.Open(path)
 	if err != nil {
 		panic(err)
@@ -29,6 +31,14 @@ func readFiles(path string) FolderData {
 		lines++
 		chars += len(scanner.Text())
 	}
+	ch <- FolderData{fileExtension, lines, chars}
+}
 
-	return FolderData{lines, chars}
+func ChannelWriter(ch chan FolderData, codeStatsData map[string]FolderData) {
+	for data := range ch {
+		fd := codeStatsData[data.FileExtension]
+		fd.NoOfLines += data.NoOfLines
+		fd.NoOfChars += data.NoOfChars
+		codeStatsData[data.FileExtension] = fd
+	}
 }

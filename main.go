@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"path/filepath"
 	"sync"
@@ -13,7 +12,7 @@ import (
 )
 
 func main() {
-	startTime := time.Now().Unix()
+	startTime := time.Now()
 	// Step 1: Get the current locations
 	cwd := helper.GetCwd()
 	home, err := os.UserHomeDir()
@@ -50,6 +49,5 @@ func main() {
 
 	// now safe to close the channel
 	close(ch)
-	tui.DisplayData(codeStatsData)
-	fmt.Println(time.Now().Unix() - startTime)
+	tui.DisplayData(codeStatsData, time.Since(startTime))
 }

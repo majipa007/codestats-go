@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"os"
 	"path/filepath"
 	"sync"
@@ -13,8 +14,15 @@ import (
 
 func main() {
 	startTime := time.Now()
+
+	workers := flag.Int("workers", 500, "max concurrent goroutines")
+	flag.Parse()
+
 	// Step 1: Get the current locations
 	cwd := helper.GetCwd()
+	if flag.NArg() > 0 {
+		cwd = flag.Arg(0)
+	}
 	home, err := os.UserHomeDir()
 	if err != nil {
 		panic(err)
@@ -47,7 +55,7 @@ func main() {
 	// Step 3: traverse in the current directory only for the certain directories and get the allowed_extensions
 	// Step 4: get the array of the particular dtype
 	var wg sync.WaitGroup
-	sem := make(helper.Semaphore, 500)
+	sem := make(helper.Semaphore, *workers)
 	helper.Traverser(cwd, ignoreDirectories, allowedxtensions, ch, &wg, sem)
 
 	// wait for workers

@@ -37,14 +37,20 @@ func Traverser(cwd string,
 		if entry.IsDir() {
 			// trying to ignore thing inside the ignoreDirectories
 			if !slices.Contains(ignoreDirectories, string(entry.Name())) {
-				Traverser(
-					filepath.Join(cwd, entry.Name()),
-					ignoreDirectories,
-					allowedExtensions,
-					ch,
-					wg,
-					sem,
-				)
+				wg.Add(1)
+				go func(path string) {
+					defer wg.Done()
+					sem.Acquire()
+					defer sem.Release()
+					Traverser(
+						path,
+						ignoreDirectories,
+						allowedExtensions,
+						ch,
+						wg,
+						sem,
+					)
+				}(filepath.Join(cwd, entry.Name()))
 			}
 		} else {
 			fileExtension := filepath.Ext(entry.Name())

@@ -18,7 +18,7 @@ type runResult struct {
 }
 
 func main() {
-	threadCounts := []int{10, 50, 100, 500, 1000}
+	threadCounts := []int{5000, 1000, 500, 100, 50, 10, 5, 1}
 
 	cwd := helper.GetCwd()
 

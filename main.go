@@ -38,16 +38,23 @@ func main() {
 	allowedxtensions := jsonData["allowed_extensions"]
 
 	ch := make(chan helper.FolderData, 100)
-	go helper.ChannelWriter(ch, codeStatsData)
+	var consumerWG sync.WaitGroup
+	consumerWG.Add(1)
+	go func() {
+		defer consumerWG.Done()
+		helper.ChannelWriter(ch, codeStatsData)
+	}()
 	// Step 3: traverse in the current directory only for the certain directories and get the allowed_extensions
 	// Step 4: get the array of the particular dtype
 	var wg sync.WaitGroup
-	helper.Traverser(cwd, ignoreDirectories, allowedxtensions, ch, &wg)
+	sem := make(helper.Semaphore, 500)
+	helper.Traverser(cwd, ignoreDirectories, allowedxtensions, ch, &wg, sem)
 
 	// wait for workers
 	wg.Wait()
 
 	// now safe to close the channel
 	close(ch)
+	consumerWG.Wait()
 	tui.DisplayData(codeStatsData, time.Since(startTime))
 }

@@ -13,11 +13,17 @@ type FolderData struct {
 	NoOfChars     int
 }
 
+type Semaphore chan struct{}
+
+func (s Semaphore) Acquire() { s <- struct{}{} }
+func (s Semaphore) Release() { <-s }
+
 func Traverser(cwd string,
 	ignoreDirectories []string,
 	allowedExtensions []string,
 	ch chan FolderData,
 	wg *sync.WaitGroup,
+	sem Semaphore,
 ) {
 	// getting the folder content in an array
 	folderContent, err := os.ReadDir(cwd)
@@ -31,18 +37,25 @@ func Traverser(cwd string,
 		if entry.IsDir() {
 			// trying to ignore thing inside the ignoreDirectories
 			if !slices.Contains(ignoreDirectories, string(entry.Name())) {
-				Traverser(filepath.Join(cwd, entry.Name()),
+				Traverser(
+					filepath.Join(cwd, entry.Name()),
 					ignoreDirectories,
 					allowedExtensions,
 					ch,
 					wg,
+					sem,
 				)
 			}
 		} else {
 			fileExtension := filepath.Ext(entry.Name())
 			if slices.Contains(allowedExtensions, fileExtension) {
 				wg.Add(1)
-				go readFiles(filepath.Join(cwd, entry.Name()), fileExtension, ch, wg)
+				go func(path, ext string) {
+					defer wg.Done()
+					sem.Acquire()
+					defer sem.Release()
+					readFiles(path, ext, ch)
+				}(filepath.Join(cwd, entry.Name()), fileExtension)
 			}
 		}
 	}

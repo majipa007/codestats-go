@@ -4,7 +4,6 @@ package helper
 import (
 	"bufio"
 	"os"
-	"sync"
 )
 
 func GetCwd() string {
@@ -15,8 +14,7 @@ func GetCwd() string {
 	return cwd
 }
 
-func readFiles(path string, fileExtension string, ch chan FolderData, wg *sync.WaitGroup) {
-	defer wg.Done()
+func readFiles(path string, fileExtension string, ch chan FolderData) {
 	f, err := os.Open(path)
 	if err != nil {
 		panic(err)
